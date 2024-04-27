@@ -1,29 +1,43 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import LoginView from '@/views/LoginView.vue'
+
+import state from '@/store/state'
+import Card from '@/views/Card.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    name: 'LoginView',
+    component: LoginView
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
+    path: '/card',
+    name: 'card',
+    component: Card
+  },
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
-  routes
-})
+  routes,
+});
+router.beforeEach(async (to, from, next) => {
+  let loginUser = state.loginUser;
+  let isLogin = sessionStorage.getItem("isLogin");
 
-export default router
+  // from - Home
+  // Need to be login, But is not login
+  if (to.meta.requiresAuth == true && !isLogin) {
+    next({ path: "/login" });
+    console.log(loginUser);
+  }
+  else {
+    next();
+  }
+});
+
+export default router;
